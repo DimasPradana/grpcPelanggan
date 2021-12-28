@@ -61,11 +61,11 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 	// check db
 	db, err := sql.Open("postgres", psqlConn)
-	CheckError(err, "gagal koneksi ke database", "di baris 54")
+	CheckError(err, "gagal koneksi ke database", "di baris 64")
 
 	// ping db
 	err = db.Ping()
-	CheckError(err, "gagal ping ke database", "di baris 58")
+	CheckError(err, "gagal ping ke database", "di baris 68")
 
 	defer db.Close()
 
@@ -77,13 +77,13 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 	// get data from tables pelanggan
 	rows, err := db.Query(qry)
-	CheckError(err, "gagal query", "di baris 66")
+	CheckError(err, "gagal query", "di baris 80")
 
 	defer rows.Close()
 
 	for rows.Next() {
 		err = rows.Scan(&unit, &alamat, &namapelang, &wkb_geometry, &no_langgan, &no_sambung)
-		CheckError(err, "gagal masukkan data ke variable", "di baris 76")
+		CheckError(err, "gagal masukkan data ke variable", "di baris 86")
 
 	}
 
@@ -113,7 +113,7 @@ func main() {
 	// {{{ GRPC
 	// listen, err := net.Listen("tcp", port)
 	listen, err := net.Listen("tcp", os.Getenv("port"))
-	CheckError(err, "failed to listen", "di baris 85")
+	CheckError(err, "failed to listen", "di baris 116")
 
 	ser := grpc.NewServer()
 	pb.RegisterGetPelangganServer(ser, &server{})
@@ -133,12 +133,12 @@ func main() {
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
-	CheckError(err, "failed to dial server from gateway", "baris 163")
+	CheckError(err, "failed to dial server from gateway", "di baris 136")
 
 	gwmux := runtime.NewServeMux()
 
 	err = pb.RegisterGetPelangganHandler(context.Background(), gwmux, conn)
-	CheckError(err, "failed to register gateway", "baris 169")
+	CheckError(err, "failed to register gateway", "di baris 141")
 
 	gwServer := &http.Server{
 		// Addr:    portgw,
