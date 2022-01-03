@@ -107,6 +107,7 @@ func main() {
 /**
  TODO snub on Tue 28 Dec 2021 23:12:46
   ᚛ ambil semua record dari tabel pelanggan
+  ᚛ test untuk branch di git 
   ᚛ 
 */
 
