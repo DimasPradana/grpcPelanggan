@@ -160,7 +160,7 @@ type AllPelangganResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	//  repeated PelangganResponse pelanggan = 1;
+	//    repeated PelangganResponse pelanggan = 1;
 	Pesan string `protobuf:"bytes,1,opt,name=pesan,proto3" json:"pesan,omitempty"`
 }
 

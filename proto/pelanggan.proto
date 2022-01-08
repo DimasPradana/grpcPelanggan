@@ -11,7 +11,7 @@ service getPelanggan{
   /* rpc getPelanggan (PelangganRequest) returns (PelangganResponse) {}; */
   rpc getPelangganApi (PelangganRequest) returns (PelangganResponse) {
     option (google.api.http) = {
-//      get: "/pelanggan/{no_langgan}"
+      //      get: "/pelanggan/{no_langgan}"
       post: "/v1/pelanggan"
       body: "*"
     };
@@ -42,6 +42,6 @@ message PelangganResponse{
 }
 
 message AllPelangganResponse{
-//  repeated PelangganResponse pelanggan = 1;
+  //    repeated PelangganResponse pelanggan = 1;
   string pesan = 1;
 }

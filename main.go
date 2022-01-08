@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/DimasPradana/kantor/grpcPelanggan/config"
+	mod "github.com/DimasPradana/kantor/grpcPelanggan/models"
 	pb "github.com/DimasPradana/kantor/grpcPelanggan/proto"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -22,13 +23,11 @@ import (
 // }}}
 
 // {{{ others
-var unit, alamat, namapelang, wkb_geometry, no_langgan, no_sambung string
-var arrUnit, arrAlamat, arrNamapelang, arrWkb_geometry, arrNo_langgan, arrNo_sambung []string
 
-//var (
-//	pel                mod.StructPelanggan
-//	arrStructPelanggan []mod.StructPelanggan
-//)
+var (
+	pel                mod.StructPelanggan
+	arrStructPelanggan []mod.StructPelanggan
+)
 
 // server is used to implement grpcPelanggan.PelangganServer
 type server struct {
@@ -88,20 +87,26 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&unit, &alamat, &namapelang, &wkb_geometry, &no_langgan, &no_sambung)
+		err = rows.Scan(&pel.Unit, &pel.Alamat, &pel.Namapelang, &pel.WkbGeometry, &pel.NoLanggan, &pel.NoSambung)
 		CheckError(err, "gagal masukkan data ke variable", "di baris 92")
 
 	}
 
 	hasil := &pb.PelangganResponse{
-		Unit:       unit,
-		NoSambung:  no_sambung,
-		NoLanggan:  no_langgan,
-		Namapelang: namapelang,
-		Alamat:     alamat,
-		Geometry:   wkb_geometry,
+		Unit:       pel.Unit,
+		NoSambung:  pel.NoSambung,
+		NoLanggan:  pel.NoLanggan,
+		Namapelang: pel.Namapelang,
+		Alamat:     pel.Alamat,
+		Geometry:   pel.WkbGeometry,
 	}
-	unit, alamat, namapelang, wkb_geometry, no_langgan, no_sambung = "", "", "", "", "", ""
+
+	pel.Unit = ""
+	pel.Alamat = ""
+	pel.Namapelang = ""
+	pel.WkbGeometry = ""
+	pel.NoLanggan = ""
+	pel.NoSambung = ""
 
 	return hasil, nil
 }
@@ -139,20 +144,17 @@ func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&unit, &alamat, &namapelang, &wkb_geometry, &no_langgan, &no_sambung)
+		// err = rows.Scan(&unit, &alamat, &namapelang, &wkb_geometry, &no_langgan, &no_sambung)
+		err = rows.Scan(&pel.Unit, &pel.Alamat, &pel.Namapelang, &pel.WkbGeometry, &pel.NoLanggan, &pel.NoSambung)
 		CheckError(err, "gagal masukkan data ke variable", "di baris 143")
 
-		arrUnit = append(arrUnit, unit)
-		arrAlamat = append(arrAlamat, alamat)
-		arrNamapelang = append(arrNamapelang, namapelang)
-		arrWkb_geometry = append(arrWkb_geometry, wkb_geometry)
-		arrNo_langgan = append(arrNo_langgan, no_langgan)
-		arrNo_sambung = append(arrNo_sambung, no_sambung)
-
+		arrStructPelanggan = append(arrStructPelanggan, pel)
 	}
-	tampil := fmt.Sprintf("%v, %v, %v, %v, %v, %v", arrUnit, arrAlamat, arrNamapelang, arrWkb_geometry, arrNo_langgan, arrNo_sambung)
-	//fmt.Printf("%v", tampil)
+	tampil := fmt.Sprintf("%v", arrStructPelanggan)
 	return &pb.AllPelangganResponse{Pesan: tampil}, nil
+	//return &pb.AllPelangganResponse{
+	//	Pelanggan: arrStructPelanggan,
+	//}, nil
 }
 
 // }}}
