@@ -1,0 +1,10 @@
+GET http://localhost:10002/v1/allpelanggan
+Accept: application/json
+
+###
+POST http://localhost:10002/v1/pelanggan
+Content-Type: application/json
+
+{"nolanggan" : "01007231"}
+
+###

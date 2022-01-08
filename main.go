@@ -23,6 +23,12 @@ import (
 
 // {{{ others
 var unit, alamat, namapelang, wkb_geometry, no_langgan, no_sambung string
+var arrUnit, arrAlamat, arrNamapelang, arrWkb_geometry, arrNo_langgan, arrNo_sambung []string
+
+//var (
+//	pel                mod.StructPelanggan
+//	arrStructPelanggan []mod.StructPelanggan
+//)
 
 // server is used to implement grpcPelanggan.PelangganServer
 type server struct {
@@ -61,11 +67,11 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 	// check db
 	db, err := sql.Open("postgres", psqlConn)
-	CheckError(err, "gagal koneksi ke database", "di baris 64")
+	CheckError(err, "gagal koneksi ke database", "di baris 70")
 
 	// ping db
 	err = db.Ping()
-	CheckError(err, "gagal ping ke database", "di baris 68")
+	CheckError(err, "gagal ping ke database", "di baris 74")
 
 	defer db.Close()
 
@@ -77,13 +83,13 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 	// get data from tables pelanggan
 	rows, err := db.Query(qry)
-	CheckError(err, "gagal query", "di baris 80")
+	CheckError(err, "gagal query", "di baris 86")
 
 	defer rows.Close()
 
 	for rows.Next() {
 		err = rows.Scan(&unit, &alamat, &namapelang, &wkb_geometry, &no_langgan, &no_sambung)
-		CheckError(err, "gagal masukkan data ke variable", "di baris 86")
+		CheckError(err, "gagal masukkan data ke variable", "di baris 92")
 
 	}
 
@@ -102,19 +108,68 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 // }}}
 
+// {{{ GetAllPelangganApi
+func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest) (*pb.AllPelangganResponse, error) {
+	// connection string
+	//  TODO snub on Tue 28 Dec 2021 15:57:12 : pake env belum bisa => done
+	psqlConn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("host"), os.Getenv("dbport"), os.Getenv("username"),
+		os.Getenv("password"), os.Getenv("dbname"))
+
+	// check db
+	db, err := sql.Open("postgres", psqlConn)
+	CheckError(err, "gagal koneksi ke database", "di baris 121")
+
+	// ping db
+	err = db.Ping()
+	CheckError(err, "gagal ping ke database", "di baris 125")
+
+	defer db.Close()
+
+	// lo.Printf("Connected to database")
+	log.Printf("Pesan dari Client: allpelanggan\n")
+
+	qry := fmt.Sprintf(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", 
+"no_sambung" from "pelanggan" LIMIT 10`)
+
+	// get data from tables pelanggan
+	rows, err := db.Query(qry)
+	CheckError(err, "gagal query", "di baris 137")
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&unit, &alamat, &namapelang, &wkb_geometry, &no_langgan, &no_sambung)
+		CheckError(err, "gagal masukkan data ke variable", "di baris 143")
+
+		arrUnit = append(arrUnit, unit)
+		arrAlamat = append(arrAlamat, alamat)
+		arrNamapelang = append(arrNamapelang, namapelang)
+		arrWkb_geometry = append(arrWkb_geometry, wkb_geometry)
+		arrNo_langgan = append(arrNo_langgan, no_langgan)
+		arrNo_sambung = append(arrNo_sambung, no_sambung)
+
+	}
+	tampil := fmt.Sprintf("%v, %v, %v, %v, %v, %v", arrUnit, arrAlamat, arrNamapelang, arrWkb_geometry, arrNo_langgan, arrNo_sambung)
+	//fmt.Printf("%v", tampil)
+	return &pb.AllPelangganResponse{Pesan: tampil}, nil
+}
+
+// }}}
+
 // {{{ main
 func main() {
-/**
- TODO snub on Tue 28 Dec 2021 23:12:46
-  ᚛ ambil semua record dari tabel pelanggan
-  ᚛ test untuk branch di git 
-  ᚛ 
-*/
+	/**
+	  TODO snub on Tue 28 Dec 2021 23:12:46
+	   ᚛ ambil semua record dari tabel pelanggan
+	   ᚛ test untuk branch di git
+	   ᚛
+	*/
 
 	// {{{ GRPC
 	// listen, err := net.Listen("tcp", port)
 	listen, err := net.Listen("tcp", os.Getenv("port"))
-	CheckError(err, "failed to listen", "di baris 116")
+	CheckError(err, "failed to listen", "di baris 172")
 
 	ser := grpc.NewServer()
 	pb.RegisterGetPelangganServer(ser, &server{})
@@ -134,12 +189,12 @@ func main() {
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
-	CheckError(err, "failed to dial server from gateway", "di baris 136")
+	CheckError(err, "failed to dial server from gateway", "di baris 192")
 
 	gwmux := runtime.NewServeMux()
 
 	err = pb.RegisterGetPelangganHandler(context.Background(), gwmux, conn)
-	CheckError(err, "failed to register gateway", "di baris 141")
+	CheckError(err, "failed to register gateway", "di baris 197")
 
 	gwServer := &http.Server{
 		// Addr:    portgw,

@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type GetPelangganClient interface {
 	// rpc getPelanggan (PelangganRequest) returns (PelangganResponse) {};
 	GetPelangganApi(ctx context.Context, in *PelangganRequest, opts ...grpc.CallOption) (*PelangganResponse, error)
+	GetAllPelangganApi(ctx context.Context, in *PelangganRequest, opts ...grpc.CallOption) (*AllPelangganResponse, error)
 }
 
 type getPelangganClient struct {
@@ -43,12 +44,22 @@ func (c *getPelangganClient) GetPelangganApi(ctx context.Context, in *PelangganR
 	return out, nil
 }
 
+func (c *getPelangganClient) GetAllPelangganApi(ctx context.Context, in *PelangganRequest, opts ...grpc.CallOption) (*AllPelangganResponse, error) {
+	out := new(AllPelangganResponse)
+	err := c.cc.Invoke(ctx, "/grpcPelanggan.getPelanggan/getAllPelangganApi", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GetPelangganServer is the server API for GetPelanggan service.
 // All implementations should embed UnimplementedGetPelangganServer
 // for forward compatibility
 type GetPelangganServer interface {
 	// rpc getPelanggan (PelangganRequest) returns (PelangganResponse) {};
 	GetPelangganApi(context.Context, *PelangganRequest) (*PelangganResponse, error)
+	GetAllPelangganApi(context.Context, *PelangganRequest) (*AllPelangganResponse, error)
 }
 
 // UnimplementedGetPelangganServer should be embedded to have forward compatible implementations.
@@ -57,6 +68,9 @@ type UnimplementedGetPelangganServer struct {
 
 func (UnimplementedGetPelangganServer) GetPelangganApi(context.Context, *PelangganRequest) (*PelangganResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPelangganApi not implemented")
+}
+func (UnimplementedGetPelangganServer) GetAllPelangganApi(context.Context, *PelangganRequest) (*AllPelangganResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllPelangganApi not implemented")
 }
 
 // UnsafeGetPelangganServer may be embedded to opt out of forward compatibility for this service.
@@ -88,6 +102,24 @@ func _GetPelanggan_GetPelangganApi_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GetPelanggan_GetAllPelangganApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PelangganRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GetPelangganServer).GetAllPelangganApi(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpcPelanggan.getPelanggan/getAllPelangganApi",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GetPelangganServer).GetAllPelangganApi(ctx, req.(*PelangganRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GetPelanggan_ServiceDesc is the grpc.ServiceDesc for GetPelanggan service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var GetPelanggan_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getPelangganApi",
 			Handler:    _GetPelanggan_GetPelangganApi_Handler,
+		},
+		{
+			MethodName: "getAllPelangganApi",
+			Handler:    _GetPelanggan_GetAllPelangganApi_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

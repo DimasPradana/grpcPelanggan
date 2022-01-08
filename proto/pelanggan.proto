@@ -16,6 +16,13 @@ service getPelanggan{
       body: "*"
     };
   };
+  rpc getAllPelangganApi (PelangganRequest) returns (AllPelangganResponse) {
+    option (google.api.http) = {
+      get: "/v1/allpelanggan"
+      /* post: "/v1/pelanggan" */
+      /* body: "*" */
+    };
+  };
 }
 
 message PelangganRequest{
@@ -32,4 +39,9 @@ message PelangganResponse{
   string alamat = 5;
   string geometry = 6;
   /* string pesan = 1; */
+}
+
+message AllPelangganResponse{
+//  repeated PelangganResponse pelanggan = 1;
+  string pesan = 1;
 }
