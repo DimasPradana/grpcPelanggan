@@ -6,32 +6,32 @@ import "google/api/annotations.proto";
 
 option go_package = "github.com/DimasPradana/kantor/grpcPelanggan";
 
-service getPelanggan{
+service getPelanggan {
   /* rpc getSatuPelanggan (PelangganRequest) returns (PelangganResponse) {} */
   /* rpc getPelanggan (PelangganRequest) returns (PelangganResponse) {}; */
-  rpc getPelangganApi (PelangganRequest) returns (PelangganResponse) {
+  rpc getPelangganApi(PelangganRequest) returns (PelangganResponse) {
     option (google.api.http) = {
       //      get: "/pelanggan/{no_langgan}"
-      post: "/v1/pelanggan"
-      body: "*"
+      post : "/v1/pelanggan"
+      body : "*"
     };
   };
-  rpc getAllPelangganApi (PelangganRequest) returns (AllPelangganResponse) {
+  rpc getAllPelangganApi(PelangganRequest) returns (AllPelangganResponse) {
     option (google.api.http) = {
-      get: "/v1/allpelanggan"
+      get : "/v1/allpelanggan"
       /* post: "/v1/pelanggan" */
       /* body: "*" */
     };
   };
 }
 
-message PelangganRequest{
+message PelangganRequest {
   string nolanggan = 1;
   /* string no_sambung = 2; */
   /* string namapelang = 3; */
 }
 
-message PelangganResponse{
+message PelangganResponse {
   string unit = 1;
   string no_sambung = 2;
   string no_langgan = 3;
@@ -41,7 +41,7 @@ message PelangganResponse{
   /* string pesan = 1; */
 }
 
-message AllPelangganResponse{
-  //    repeated PelangganResponse pelanggan = 1;
-  string pesan = 1;
+message AllPelangganResponse {
+  repeated PelangganResponse PelangganResponses = 1;
+  //  string pesan = 1;
 }

@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/DimasPradana/kantor/grpcPelanggan/config"
-	mod "github.com/DimasPradana/kantor/grpcPelanggan/models"
 	pb "github.com/DimasPradana/kantor/grpcPelanggan/proto"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -23,21 +22,10 @@ import (
 // }}}
 
 // {{{ others
-
-var (
-	pel                mod.StructPelanggan
-	arrStructPelanggan []mod.StructPelanggan
-)
-
 // server is used to implement grpcPelanggan.PelangganServer
 type server struct {
 	pb.UnimplementedGetPelangganServer
-}
-
-//func NewServer() *server {
-//	return &server{}
-//}
-// }}}
+} // }}}
 
 // {{{ init
 func init() {
@@ -58,19 +46,22 @@ func CheckError(err error, pesan string, baris string) {
 
 // {{{ GetPelangganApi
 func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (*pb.PelangganResponse, error) {
+
+	pel := pb.PelangganResponse{}
+
 	// connection string
-	//  TODO snub on Tue 28 Dec 2021 15:57:12 : pake env belum bisa => done
+	//  TODO: (snub on Tue 28 Dec 2021 15:57:12) : pake env belum bisa => done
 	psqlConn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("dbport"), os.Getenv("username"),
 		os.Getenv("password"), os.Getenv("dbname"))
 
 	// check db
 	db, err := sql.Open("postgres", psqlConn)
-	CheckError(err, "gagal koneksi ke database", "di baris 70")
+	CheckError(err, "gagal koneksi ke database", "di baris 72")
 
 	// ping db
 	err = db.Ping()
-	CheckError(err, "gagal ping ke database", "di baris 74")
+	CheckError(err, "gagal ping ke database", "di baris 76")
 
 	defer db.Close()
 
@@ -82,14 +73,13 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 	// get data from tables pelanggan
 	rows, err := db.Query(qry)
-	CheckError(err, "gagal query", "di baris 86")
+	CheckError(err, "gagal query", "di baris 88")
 
 	defer rows.Close()
 
 	for rows.Next() {
-		err = rows.Scan(&pel.Unit, &pel.Alamat, &pel.Namapelang, &pel.WkbGeometry, &pel.NoLanggan, &pel.NoSambung)
-		CheckError(err, "gagal masukkan data ke variable", "di baris 92")
-
+		err = rows.Scan(&pel.Unit, &pel.Alamat, &pel.Namapelang, &pel.Geometry, &pel.NoLanggan, &pel.NoSambung)
+		CheckError(err, "gagal masukkan data ke variable", "di baris 94")
 	}
 
 	hasil := &pb.PelangganResponse{
@@ -98,13 +88,13 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 		NoLanggan:  pel.NoLanggan,
 		Namapelang: pel.Namapelang,
 		Alamat:     pel.Alamat,
-		Geometry:   pel.WkbGeometry,
+		Geometry:   pel.Geometry,
 	}
 
 	pel.Unit = ""
 	pel.Alamat = ""
 	pel.Namapelang = ""
-	pel.WkbGeometry = ""
+	pel.Geometry = ""
 	pel.NoLanggan = ""
 	pel.NoSambung = ""
 
@@ -115,46 +105,49 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 // {{{ GetAllPelangganApi
 func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest) (*pb.AllPelangganResponse, error) {
+	a := pb.PelangganResponse{}
+	// XXX: could no omit type *pb.AllPelangganResponse from declaration by snub on Fri 14 Jan 2022 22:04:09 not sure why
+	//var pelangganList *pb.AllPelangganResponse = &pb.AllPelangganResponse{}
+	var pelangganList = &pb.AllPelangganResponse{}
+
 	// connection string
-	//  TODO snub on Tue 28 Dec 2021 15:57:12 : pake env belum bisa => done
+	// TODO:(pake env belum bisa): [done] by snub on Tue 28 Dec 2021 15:57:12
 	psqlConn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("host"), os.Getenv("dbport"), os.Getenv("username"),
 		os.Getenv("password"), os.Getenv("dbname"))
 
 	// check db
 	db, err := sql.Open("postgres", psqlConn)
-	CheckError(err, "gagal koneksi ke database", "di baris 121")
+	CheckError(err, "gagal koneksi ke database", "di baris 129")
 
 	// ping db
 	err = db.Ping()
-	CheckError(err, "gagal ping ke database", "di baris 125")
+	CheckError(err, "gagal ping ke database", "di baris 133")
 
 	defer db.Close()
 
 	// lo.Printf("Connected to database")
 	log.Printf("Pesan dari Client: allpelanggan\n")
 
-	qry := fmt.Sprintf(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", 
-"no_sambung" from "pelanggan" LIMIT 10`)
+	// qry := fmt.Sprintf(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan" LIMIT 5`)
+	qry := fmt.Sprintln(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan"`)
 
 	// get data from tables pelanggan
 	rows, err := db.Query(qry)
-	CheckError(err, "gagal query", "di baris 137")
+	CheckError(err, "gagal query", "di baris 145")
 
 	defer rows.Close()
 
+	// TODO: return as array of pelanggans by snub on Fri 14 Jan 2022 21:50:39 done
 	for rows.Next() {
-		// err = rows.Scan(&unit, &alamat, &namapelang, &wkb_geometry, &no_langgan, &no_sambung)
-		err = rows.Scan(&pel.Unit, &pel.Alamat, &pel.Namapelang, &pel.WkbGeometry, &pel.NoLanggan, &pel.NoSambung)
-		CheckError(err, "gagal masukkan data ke variable", "di baris 143")
+		err = rows.Scan(&a.Unit, &a.Alamat, &a.Namapelang, &a.Geometry, &a.NoLanggan, &a.NoSambung)
+		CheckError(err, "gagal masukkan data ke variable", "di baris 167")
 
-		arrStructPelanggan = append(arrStructPelanggan, pel)
+		pelangganList.PelangganResponses = append(pelangganList.PelangganResponses, &a)
 	}
-	tampil := fmt.Sprintf("%v", arrStructPelanggan)
-	return &pb.AllPelangganResponse{Pesan: tampil}, nil
-	//return &pb.AllPelangganResponse{
-	//	Pelanggan: arrStructPelanggan,
-	//}, nil
+
+	return pelangganList, nil
+
 }
 
 // }}}
@@ -162,16 +155,17 @@ func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest
 // {{{ main
 func main() {
 	/**
-	  TODO snub on Tue 28 Dec 2021 23:12:46
-	   ᚛ ambil semua record dari tabel pelanggan
-	   ᚛ test untuk branch di git
-	   ᚛
+	TODO: snub on Tue 28 Dec 2021 23:12:46
+		   ᚛ ambil semua record dari tabel pelanggan -> done on Fri 14 Jan 2022 21:50:39
+		   ᚛ test untuk branch di git
+		   ᚛ making a test file
+		   ᚛
 	*/
 
 	// {{{ GRPC
 	// listen, err := net.Listen("tcp", port)
 	listen, err := net.Listen("tcp", os.Getenv("port"))
-	CheckError(err, "failed to listen", "di baris 172")
+	CheckError(err, "failed to listen", "di baris 202")
 
 	ser := grpc.NewServer()
 	pb.RegisterGetPelangganServer(ser, &server{})
@@ -191,12 +185,12 @@ func main() {
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
-	CheckError(err, "failed to dial server from gateway", "di baris 192")
+	CheckError(err, "failed to dial server from gateway", "di baris 222")
 
 	gwmux := runtime.NewServeMux()
 
 	err = pb.RegisterGetPelangganHandler(context.Background(), gwmux, conn)
-	CheckError(err, "failed to register gateway", "di baris 197")
+	CheckError(err, "failed to register gateway", "di baris 227")
 
 	gwServer := &http.Server{
 		// Addr:    portgw,
