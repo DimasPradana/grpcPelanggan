@@ -1,0 +1,154 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "proto/pelanggan.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "getPelanggan"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/allpelanggan": {
+      "get": {
+        "operationId": "getPelanggan_getAllPelangganApi",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/grpcPelangganAllPelangganResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nolanggan",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "getPelanggan"
+        ]
+      }
+    },
+    "/v1/pelanggan": {
+      "post": {
+        "summary": "rpc getPelanggan (PelangganRequest) returns (PelangganResponse) {};",
+        "operationId": "getPelanggan_getPelangganApi",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/grpcPelangganPelangganResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/grpcPelangganPelangganRequest"
+            }
+          }
+        ],
+        "tags": [
+          "getPelanggan"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "grpcPelangganAllPelangganResponse": {
+      "type": "object",
+      "properties": {
+        "PelangganResponses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/grpcPelangganPelangganResponse"
+          }
+        }
+      }
+    },
+    "grpcPelangganPelangganRequest": {
+      "type": "object",
+      "properties": {
+        "nolanggan": {
+          "type": "string"
+        }
+      }
+    },
+    "grpcPelangganPelangganResponse": {
+      "type": "object",
+      "properties": {
+        "unit": {
+          "type": "string"
+        },
+        "noSambung": {
+          "type": "string"
+        },
+        "noLanggan": {
+          "type": "string"
+        },
+        "namapelang": {
+          "type": "string"
+        },
+        "alamat": {
+          "type": "string"
+        },
+        "geometry": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
