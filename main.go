@@ -129,8 +129,8 @@ func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest
 	// lo.Printf("Connected to database")
 	log.Printf("Pesan dari Client: allpelanggan\n")
 
-	// qry := fmt.Sprintf(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan" LIMIT 5`)
-	qry := fmt.Sprintln(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan"`)
+	qry := fmt.Sprintf(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan" LIMIT 10`)
+	// qry := fmt.Sprintln(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan"`)
 
 	// get data from tables pelanggan
 	rows, err := db.Query(qry)
