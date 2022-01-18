@@ -105,10 +105,10 @@ func (s *server) GetPelangganApi(ctx context.Context, in *pb.PelangganRequest) (
 
 // {{{ GetAllPelangganApi
 func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest) (*pb.AllPelangganResponse, error) {
-	a := pb.PelangganResponse{}
 	// XXX: could no omit type *pb.AllPelangganResponse from declaration by snub on Fri 14 Jan 2022 22:04:09 not sure why
-	//var pelangganList *pb.AllPelangganResponse = &pb.AllPelangganResponse{}
+	// var pelangganList *pb.AllPelangganResponse = &pb.AllPelangganResponse{}
 	var pelangganList = &pb.AllPelangganResponse{}
+	// pelangganList.PelangganResponses = nil
 
 	// connection string
 	// TODO:(pake env belum bisa): [done] by snub on Tue 28 Dec 2021 15:57:12
@@ -129,7 +129,7 @@ func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest
 	// lo.Printf("Connected to database")
 	log.Printf("Pesan dari Client: allpelanggan\n")
 
-	qry := fmt.Sprintf(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan" LIMIT 10`)
+	qry := fmt.Sprintln(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan" ORDER BY "no_langgan" DESC LIMIT 10`)
 	// qry := fmt.Sprintln(`SELECT "unit", "alamat", coalesce("namapelang",''), st_astext("wkb_geometry", 4326), "no_langgan", "no_sambung" from "pelanggan"`)
 
 	// get data from tables pelanggan
@@ -140,8 +140,9 @@ func (s *server) GetAllPelangganApi(ctx context.Context, in *pb.PelangganRequest
 
 	// TODO: return as array of pelanggans by snub on Fri 14 Jan 2022 21:50:39 done
 	for rows.Next() {
+		a := pb.PelangganResponse{} // harus ditaruh disini
 		err = rows.Scan(&a.Unit, &a.Alamat, &a.Namapelang, &a.Geometry, &a.NoLanggan, &a.NoSambung)
-		CheckError(err, "gagal masukkan data ke variable", "di baris 144")
+		CheckError(err, "gagal masukkan data ke variable", "di baris 145")
 
 		pelangganList.PelangganResponses = append(pelangganList.PelangganResponses, &a)
 	}
